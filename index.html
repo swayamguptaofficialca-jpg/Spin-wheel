@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Spin the Wheel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      text-align: center; 
+      padding: 30px; 
+      background: #f4f6f9;
+    }
+    button { 
+      padding: 14px 28px; 
+      font-size: 16px; 
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>🎯 Spin the Wheel</h2>
+<p id="status">Checking eligibility...</p>
+<button id="spinBtn" disabled>SPIN</button>
+
+<script>
+const API_URL = "PASTE_YOUR_WEB_APP_URL_HERE";
+
+const params = new URLSearchParams(window.location.search);
+const email = params.get("email");
+const sid = params.get("sid");
+
+if (!email || !sid) {
+  document.getElementById("status").innerText = "Invalid access";
+}
+
+// Check eligibility
+fetch(`${API_URL}?email=${email}&sid=${sid}`)
+  .then(res => res.json())
+  .then(data => {
+    if (data.eligible) {
+      document.getElementById("status").innerText = "✅ You are eligible to spin";
+      document.getElementById("spinBtn").disabled = false;
+    } else {
+      document.getElementById("status").innerText = "❌ Spin already used or invalid";
+    }
+  });
+
+// Spin action
+document.getElementById("spinBtn").onclick = () => {
+  const rewards = [
+    "₹500 Amazon Voucher",
+    "1 Day WFH",
+    "Team Lunch",
+    "Certificate",
+    "Better Luck Next Time"
+  ];
+
+  const reward = rewards[Math.floor(Math.random() * rewards.length)];
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      email: email,
+      sid: sid,
+      reward: reward
+    })
+  }).then(() => {
+    alert("🎉 You won: " + reward);
+    document.getElementById("spinBtn").disabled = true;
+    document.getElementById("status").innerText = "Spin completed";
+  });
+};
+</script>
+
+</body>
+</html>
